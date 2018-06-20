@@ -70,10 +70,9 @@ public class GermaNERMain
         // TODO: include check/Exception that ensures the ENV-variable is set!
         if (configFile == null) {
             configFile = new FileInputStream(propertyPath);
+            prop = new Properties();
+            loadConfig();
         }
-
-        prop = new Properties();
-        loadConfig();
     }
 
     /**
@@ -318,6 +317,8 @@ public class GermaNERMain
                 ? new File("output") : new File(Configuration.modelDir);
         modelDirectory.mkdirs();
 
+        /* TODO: fix crashing after second use (from within web-container) */
+        
         if (!new File(modelDirectory, "model.jar").exists()) {
             IOUtils.copyLarge(ClassLoader.getSystemResourceAsStream("model/model.jar"),
                     new FileOutputStream(new File(modelDirectory, "model.jar")));
