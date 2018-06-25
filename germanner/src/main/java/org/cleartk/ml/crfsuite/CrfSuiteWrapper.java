@@ -42,8 +42,10 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -158,27 +160,41 @@ public class CrfSuiteWrapper {
 
       // TODO: check why this should/shouldn't be overridden
       URL crfExecUrl = getClass().getResource(loc);
-      crfExecUrl = Thread.currentThread().getContextClassLoader().getResource(loc);
 
-      logger.log(Level.WARNING, String.format("loc: %s crfExecUrl: %s", loc, crfExecUrl));
+        try {
+            crfExecUrl = Paths.get(System.getenv("GERMANER_HOME"), loc).toUri().toURL();
+
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+
+        logger.log(Level.WARNING, String.format("loc: %s crfExecUrl: %s", loc, crfExecUrl));
 
       logger.log(Level.FINE, "CrfSuite Location " + loc);
       logger.log(Level.FINE, "CrfSuite Url: " + crfExecUrl);
+
       File f;
+
       try {
+
         if (crfExecUrl != null) {
+
           f = new File(ResourceUtils.getUrlAsFile(crfExecUrl, true).toURI().getPath());
+
           if (!f.exists()) {
             f = new File(URLDecoder.decode(f.getAbsolutePath(), ("UTF-8")));
           }
+
           f.setExecutable(true);
+
           return f;
         }
+
         logger.log(Level.WARNING, "The executable could not be found at " + loc);
         return null;
+
       } catch (IOException e) {
         e.printStackTrace();
-
         return null;
       }
 
